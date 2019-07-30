@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 
 @RestController
-@RequestMapping(path="/user")
+@RequestMapping(path="/auth")
 public class AuthenticationController {
 
     @Autowired
