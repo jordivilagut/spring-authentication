@@ -6,6 +6,8 @@ import application.services.AuthenticationService;
 import application.services.UsersService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +15,8 @@ import java.util.List;
 
 @Service
 public class UsersServiceImpl implements UsersService {
+
+    private Logger LOG = LoggerFactory.getLogger(UsersService.class);
 
     @Autowired
     private UsersRepository users;
@@ -32,7 +36,7 @@ public class UsersServiceImpl implements UsersService {
         try {
             claims = authenticationService.decodeJWT(token);
         } catch (ExpiredJwtException e){
-            //TODO - Log exception
+            LOG.info("User token expired.", e);
             return null;
         }
 
@@ -51,5 +55,11 @@ public class UsersServiceImpl implements UsersService {
         users.save(user);
 
         return user;
+    }
+
+    @Override
+    public void revokeToken(User user) {
+        user.setToken("");
+        users.save(user);
     }
 }

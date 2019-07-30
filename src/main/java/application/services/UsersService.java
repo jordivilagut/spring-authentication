@@ -12,4 +12,6 @@ public interface UsersService {
     public User getUserFromUsername(String username);
 
     public User addOrUpdateUser(User user);
+
+    void revokeToken(User user);
 }

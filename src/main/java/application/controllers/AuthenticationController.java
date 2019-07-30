@@ -3,14 +3,11 @@ package application.controllers;
 import application.model.User;
 import application.services.AuthenticationService;
 import application.services.UsersService;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
 import java.util.HashMap;
 
 @RestController
@@ -64,20 +61,14 @@ public class AuthenticationController {
     @PostMapping("/logout")
     public ResponseEntity<String> logout(@RequestHeader(value="Authorization") String token) {
         User user = usersService.getUserFromToken(token);
+        usersService.revokeToken(user);
         return new ResponseEntity<>("Logged out.", HttpStatus.OK);
     }
 
     @PostMapping("/authenticate")
     public ResponseEntity<String> authenticate(@RequestHeader(value="Authorization") String token) {
 
-        try {
-            Claims claims = authenticationService.decodeJWT(token);
-        } catch (ExpiredJwtException e){
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
-        }
-
         User user = usersService.getUserFromToken(token);
-        long now = new Date().getTime();
 
         if (user == null) {
             return new ResponseEntity<>("Invalid user.", HttpStatus.UNAUTHORIZED);
