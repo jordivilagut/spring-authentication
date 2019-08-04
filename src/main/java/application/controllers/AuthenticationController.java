@@ -21,7 +21,7 @@ public class AuthenticationController {
     private AuthenticationService authenticationService;
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody HashMap<String, String> body) {
+    public ResponseEntity<Object> login(@RequestBody HashMap<String, String> body) {
 
         User user = usersService.getUserFromUsername(body.get("username"));
 
@@ -35,27 +35,30 @@ public class AuthenticationController {
 
         User updated = usersService.addOrUpdateUser(user);
 
-        return new ResponseEntity<>(updated.getToken(), HttpStatus.OK);
+        return new ResponseEntity<>(updated, HttpStatus.OK);
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<String> signup(@RequestBody User body) {
+    public ResponseEntity<Object> signup(@RequestBody HashMap<String, String> body) {
 
-        if (body.getUsername().isEmpty() || body.getPassword().isEmpty()) {
+        String username = body.get("username");
+        String password = body.get("password");
+
+        if (username.isEmpty() || password.isEmpty()) {
             return new ResponseEntity<>("Empty username or password.", HttpStatus.FORBIDDEN);
         }
 
-        if (usersService.getUserFromUsername(body.getUsername()) != null) {
+        if (usersService.getUserFromUsername(username) != null) {
             return new ResponseEntity<>("Username already registered.", HttpStatus.FORBIDDEN);
         }
 
-        if (body.getPassword().length() <= 4) {
+        if (password.length() <= 4) {
             return new ResponseEntity<>("Password is too short.", HttpStatus.FORBIDDEN);
         }
 
-        User user = usersService.addOrUpdateUser(body);
+        User user = usersService.addOrUpdateUser(new User(username, password));
 
-        return new ResponseEntity<>(user.getToken(), HttpStatus.OK);
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
     @PostMapping("/logout")
